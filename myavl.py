@@ -147,7 +147,6 @@ class AVLTree:
             if node.right is None and node.left is None:
                 # leaf's deletion
                 helper(parent, None, direction)
-                node = None
             elif node.right is not None and node.left is not None:
                 # two child deletion
                 temp = node.left
@@ -164,10 +163,7 @@ class AVLTree:
                 else:
                     node = node.left
                     helper(parent, node, direction)
-        if node is None:
-            return
-        AVLTree.rebalance(tree, parent, node, direction)
-        return
+                AVLTree.rebalance(tree, parent, node, direction)
 
 if __name__ == "__main__":
     avl = AVLTree()
