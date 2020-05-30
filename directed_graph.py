@@ -74,6 +74,58 @@ class DiGraph:
         return res
         # yield (item,v) # If we replace the above two lines with this line, then this methods works as an iterator.
 
+    def dfs(self, root):
+        numVertices = self.vertexList.getlength()
+        self.mark = [None] * numVertices
+        self.dfsNum = [1] * numVertices
+        self.finishTime = [1] * numVertices
+        self.dfsPos = 1
+        self.finishingTime = 1
+        graph = DiGraph()
+        index = self.vertexList.index(root)
+        self.mark[index] = root
+        self.dfsPos += 1
+        self.__dfs(root, graph)
+        return graph
+
+    def __dfs(self, root, graph):
+        index = self.vertexList.index(root)
+        for edge in self.outgoingEdges(root):
+            # print("the edges are: ",edge)
+            next_index = self.vertexList.index(edge[1])
+            if self.mark[next_index] is None:
+                self.mark[next_index] = root
+                self.dfsNum[next_index] = self.dfsPos
+                self.dfsPos += 1
+                graph.insertEdge(edge)
+                self.__dfs(edge[1], graph)
+        self.finishTime[index] = self.finishingTime
+        self.finishingTime += 1
+
+    def path(self, root, target):
+        numVertices = self.vertexList.getlength()
+        self.mark = [None]*numVertices
+        stk = Stack()
+        self.__search_path(root, target, stk)
+        if stk.isEmpty():
+            return None
+        path = DiGraph()
+        while stk.isEmpty() is False:
+            edge = stk.pop()
+            path.insertEdge(edge)
+        return path
+
+    def __search_path(self, root, target, stk):
+        if root == target:
+            return True
+        for edge in self.outgoingEdges(root):
+            next_index = self.vertexList.index(edge[1])
+            if self.mark[next_index] is None:
+                self.mark[next_index] = root
+                if self.__search_path(edge[1], target, stk):
+                    stk.push(edge)
+                    return True
+        return False
 
 # Definition of VertexList Class, a linked list
 class VertexList:
@@ -137,6 +189,15 @@ class VertexList:
             if vertex == item:
                 return True
         return False
+
+    def __getitem__(self, index):
+        if index >= self.numVertices:
+            return None
+        temp_index = 0
+        for i in self:
+            if temp_index == index:
+                return i
+            temp_index += 1
 
     # locate the vertex location using its vertex value
     def locate(self, vertex):
@@ -262,3 +323,68 @@ class EdgeList:
                 return True
             cursor = cursor.getNext()
         return False
+
+class Stack:
+    def __init__(self, size=20):
+        self.items = [None] * size
+        self.numItems = 0
+        self.size = size
+
+    def top(self):
+        if self.numItems != 0:
+            return self.items[self.numItems - 1]
+        raise Exception("Stack is empty")
+
+    def push(self, item):
+        if self.numItems == self.size:
+            self.allocate()
+        self.items[self.numItems] = item
+        self.numItems += 1
+
+    def allocate(self):
+        newlength = 2 * self.size
+        newStack = [None] * newlength
+        for i in range(self.numItems):
+            newStack[i] = self.items[i]
+        self.items = newStack
+        self.size = newlength
+
+    def pop(self):
+        if self.numItems == self.size / 4:
+            self.deallocate()
+        if self.numItems != 0:
+            topelement = self.items[self.numItems - 1]
+            self.numItems -= 1
+            return topelement
+        raise Exception("Stack is empty")
+
+    def deallocate(self):
+        newlength = self.size // 2
+        newStack = [None] * newlength
+        for i in range(self.numItems):
+            newStack[i] = self.items[i]
+        self.items = newStack
+        self.size = newlength
+
+    def isEmpty(self):
+        if self.numItems != 0:
+            return False
+        return True
+
+
+if __name__ == "__main__":
+    edges = [(1, 5), (1, 3), (1, 7), (5, 2), (5, 3), (3, 4), (3, 6), (2, 4), (2, 6), (6, 1)]
+    g = DiGraph(edges)
+    for i in g:
+        print(i)
+    g.dfs(1)
+    print("dfs number: ",g.dfsNum)
+    print("the finish time: ",g.finishTime)
+    path1 = g.path(1,6)
+    print("path1")
+    for i in path1:
+        print(i)
+    path2 = g.path(3,7)
+    print("path2")
+    for i in path2:
+        print(i)
