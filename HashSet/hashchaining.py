@@ -44,7 +44,7 @@ class HashSetChaining:
     @staticmethod
     def __add(item, items):
         index = hash(item) % len(items)
-        if items[index] == None:
+        if items[index] is None or type(items[index]) is HashSetChaining.__Placeholder:
             items[index] = []
         if item in items[index]:
             return False
